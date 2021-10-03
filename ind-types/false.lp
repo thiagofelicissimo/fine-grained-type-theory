@@ -10,23 +10,23 @@ constant symbol ⊥ : U Prop;
 
 // into Prop
 symbol ⊥_ind : Π (A : U Prop),
-                 El Prop ⊥ →
-                 El Prop A;
+                 El ⊥ →
+                 El A;
 
 // into TProp (large)
 symbol ⊥_hind : Π (A : U TProp),
-                 El Prop ⊥ →
-                 El TProp A;
+                 El ⊥ →
+                 El A;
 
 // into Set (large)
 symbol ⊥_rec : Π (A : U Set),
-                 El Prop ⊥ →
-                 El Set A;
+                 El ⊥ →
+                 El A;
 
 // into TSet (large)
 symbol ⊥_hrec : Π (A : U TSet),
-                 El Prop ⊥ →
-                 El TSet A;
+                 El ⊥ →
+                 El A;
 
 // computation rules
 // empty

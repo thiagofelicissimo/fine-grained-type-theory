@@ -3,52 +3,56 @@ constant symbol Set : Sort;     // Set   ↪ Set0 and Type0
 constant symbol Prop : Sort;    // Prop  ↪ Set0 and Prop
 constant symbol TSet : Sort;    // TSet  ↪ Set1 and Type1
 constant symbol TProp : Sort;   // TProp ↪ Set1 and Type0
-symbol ∀Prop : Sort;   // ∀Prop ↪ Set1 and Prop
+constant symbol HProp : Sort;   // ∀Prop ↪ Set1 and Prop
 constant symbol U : Sort → TYPE;
 
-symbol El : Π (s : Sort), U s → TYPE;
+symbol El : Π {s : Sort}, U s → TYPE;
 
 constant symbol set : U TSet;    // Set  : TSet  ↪ Set0 : Set1 and Type0 : Type1 
-rule El _ set ↪ U Set;
+rule El set ↪ U Set;
 constant symbol prop : U TProp;  // Prop : TProp ↪ Set0 : Set1 and Prop  : Type0
-rule El _ prop ↪ U Prop;
+rule El prop ↪ U Prop;
 
-constant symbol tt : TYPE;
-constant symbol I : tt;
-symbol ∨ : Π (s1 s2 s3 : Sort), TYPE;
-// Set and Prop
-rule ∨ Set   Set   Set   ↪ tt  // (Set,   Set,   Set)   ↪ (Set0,  Set0,  Set0) and (Type0, Type0, Type0) <- \⇝ and ⇝d in U
-with ∨ Prop  Prop  Prop  ↪ tt  // (Prop,  Prop,  Prop)  ↪ (Set0,  Set0,  Set0) and (Prop,  Prop,  Prop)  <- ⇒ and ⇒d in U
-with ∨ Set   Prop  Prop  ↪ tt  // (Set,   Prop,  Prop)  ↪ (Set0,  Set0,  Set0) and (Type0, Prop,  Prop)  <- ∀ in U
-with ∨ Prop  Set   Set   ↪ tt  // (Prop,  Set,   Set)   ↪ (Set0,  Set0,  Set0) and (Prop,  Type0, Type0) <- π in U
-// TSet and TProp
-with ∨ TSet  TSet  TSet  ↪ tt  // (TSet,  TSet,  TSet)  ↪ (Set1,  Set1,  Set1) and (Type1, Type1, Type1) <- Scheme1 in U
-with ∨ TProp TProp TProp ↪ tt  // (TProp, TProp, TProp) ↪ (Set1,  Set1,  Set1) and (Type0, Type0, Type0) <- \⇝ and ⇝d for TProp
-with ∨ TSet  TProp TSet  ↪ tt  // (TSet,  TProp, TSet)  ↪ (Set1,  Set1,  Set1) and (Type1, Type0, Type1) <- not in U
-with ∨ TProp TSet  TSet  ↪ tt  // (TProp, TSet,  TSet)  ↪ (Set1,  Set1,  Set1) and (Type0, Type1, Type1) <- Scheme2 for TProp
-// Sort ∨ TSort
-with ∨ Prop  TProp TProp ↪ tt  // (Prop,  TProp, TProp) ↪ (Set0,  Set1,  Set1) and (Prop,  Type0, Type0) <- π for TProp
-with ∨ Set   TSet  TSet  ↪ tt  // (Set,   TSet,  TSet)  ↪ (Set0,  Set1,  Set1) and (Type0, Type1, Type1) <- Scheme2 in U
-with ∨ Set   TProp TProp ↪ tt  // (Set,   TProp, TProp) ↪ (Set0,  Set1,  Set1) and (Type0, Type0, Type0) <- 
-with ∨ Prop  TSet  TSet  ↪ tt  // (Prop,  TSet,  TSet)  ↪ (Set0,  Set1,  Set1) and (Prop,  Type1, Type1)
-// TSort ∨ Sort
-with ∨ TSet  Set   TSet  ↪ tt  // (TSet,  Set,   TSet)  ↪ (Set1,  Set0,  Set1) and (Type1, Type0, Type1)
-with ∨ TProp Set   TProp ↪ tt  // (TProp, Set,   TProp) ↪ (Set1,  Set0,  Set1) and (Type0, Type0, Type0)
-with ∨ TProp Prop  ∀Prop ↪ tt  // (TProp, Prop,  ∀Prop) ↪ (Set1,  Set0,  Set1) and (Type0, Prop,  Prop)
-with ∨ TSet  Prop  ∀Prop ↪ tt  // (TSet,  Prop,  ∀Prop) ↪ (Set1,  Set0,  Set1) and (Type1, Prop,  Prop)
-// TSort ∨ ∀Prop
-with ∨ TSet  ∀Prop ∀Prop ↪ tt  // (TSet,  ∀Prop, ∀Prop) ↪ (Set1,  Set1,  Set1) and (Type1, Prop,  Prop)
-with ∨ TProp ∀Prop ∀Prop ↪ tt  // (TProp, ∀Prop, ∀Prop) ↪ (Set1,  Set1,  Set1) and (Type0, Prop,  Prop)
+symbol ∨ : Sort → Sort → Sort;
+notation ∨ infix left 6;
 
-// Sort ∨ ∀Prop
-with ∨ Set   ∀Prop ∀Prop ↪ tt  // (Set,   ∀Prop, ∀Prop) ↪ (Set0,  Set1,  Set1) and (Type0, Prop,  Prop)
-with ∨ Prop  ∀Prop ∀Prop ↪ tt  // (Prop,  ∀Prop, ∀Prop) ↪ (Set0,  Set1,  Set1) and (Prop,  Prop,  Prop)
+// sort ∨ sort,
+rule Set   ∨ Set   ↪ Set
+with Prop  ∨ Prop  ↪ Prop
+with Set   ∨ Prop  ↪ Prop
+with Prop  ∨ Set   ↪ Set
 
-// other products with ∀Prop
-with ∨ ∀Prop  ∀Prop ∀Prop ↪ tt  // (∀Prop,  ∀Prop, ∀Prop) ↪ (Set1,  Set1,  Set1) and (Prop,  Prop,  Prop)
-with ∨ ∀Prop  Prop  ∀Prop ↪ tt; // (∀Prop,   Prop, ∀Prop) ↪ (Set1,  Set0,  Set1) and (Prop,  Prop,  Prop)
+// tsort ∨ tsort 
+with TSet  ∨ TSet  ↪ TSet
+with TProp ∨ TProp ↪ TProp
+with TSet  ∨ TProp ↪ TSet
+with TProp ∨ TSet  ↪ TSet
 
+// hsort ∨ hsort
+with HProp ∨ HProp ↪ HProp
 
+// sort ∨ tsort, tsort ∨ sort
+with Set   ∨ TSet  ↪ TSet
+with Prop  ∨ TProp ↪ TProp
+with TSet  ∨ Set   ↪ TSet
+with TProp ∨ Prop  ↪ HProp
+with Set   ∨ TProp ↪ TProp
+with Prop  ∨ TSet  ↪ TSet
+with TProp ∨ Set   ↪ HProp
+with TSet  ∨ Prop  ↪ HProp
 
-constant symbol ⇝ : Π (s1 s2: Sort) {s3 : Sort} (_ : ∨ s1 s2 s3) (A : U s1), (El s1 A → U s2) → U s3;
-rule El _ (⇝ $s1 $s2 _ $A $B) ↪ Π (x : El $s1 $A), El $s2 ($B x);
+// hsort ∨ sort, sort ∨ hsort
+with HProp ∨ Prop  ↪ HProp
+with Prop  ∨ HProp ↪ HProp
+with HProp ∨ Set   ↪ TProp
+with Set   ∨ HProp ↪ HProp
+
+// hsort ∨ tsort, tsort ∨ hsort
+with HProp ∨ TProp ↪ TProp
+with TProp ∨ HProp ↪ HProp
+with HProp ∨ TSet  ↪ TSet
+with TSet  ∨ HProp ↪ HProp;
+
+constant symbol ⇝ : Π {s1 s2: Sort} (A : U s1), (El A → U s2) → U (s1 ∨ s2);
+notation ⇝ infix left 6;
+rule El ($A ⇝ $B) ↪ Π (x : El $A), El ($B x);

@@ -4,33 +4,33 @@ require open fine-grained-type-theory.fgtt;
 constant symbol ⊤ : U Prop;
 
 // constructor
-constant symbol I-⊤ : El Prop ⊤;
+constant symbol I-⊤ : El ⊤;
 
 // eliminators
 
 // into Prop
 symbol ⊤_ind : Π (A : U Prop),
-                 El Prop A →
-                 El Prop ⊤ →
-                 El Prop A;
+                 El A →
+                 El ⊤ →
+                 El A;
 
 // into TProp (large)
 symbol ⊤_hind : Π (A : U TProp),
-                 El TProp A →
-                 El Prop ⊤ →
-                 El TProp A;
+                 El A →
+                 El ⊤ →
+                 El A;
 
 // into Set (large)
 symbol ⊤_rec : Π (A : U Set),
-                 El Set A →
-                 El Prop ⊤ →
-                 El Set A;
+                 El A →
+                 El ⊤ →
+                 El A;
 
 // into TSet (large)
 symbol ⊤_hrec : Π (A : U TSet),
-                 El TSet A →
-                 El Prop ⊤ →
-                 El TSet A;
+                 El A →
+                 El ⊤ →
+                 El A;
 
 // computation rules                
 rule ⊤_ind _ $a I-⊤ ↪ $a;

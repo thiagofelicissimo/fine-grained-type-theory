@@ -1,0 +1,47 @@
+Ty : Par -> Ind -> Set
+
+c1 : (Del : Par) -> (Gam : Ind) -> Ty Del Gam -> Phi1 (Ty Del (f1 Gam))
+c2 : (Del : Par) -> (Gam : Ind) -> Ty Del Gam -> Phi2 (Ty Del (f2 Gam), c1 Del (f2 Gam)) 
+...
+cn : (Del : Par) -> (Gam : Ind) -> Ty Del Gam -> Phin (Ty Del (fn Gam), c1 Del (fn Gam),...,c{n-1} Del (fn Gam))
+
+corec : (Del : Par) -> (B : Ind -> Set) -> 
+	(d1 : (Gam : Ind) -> B Gam -> Phi1 (B (f1 Gam))) ->
+	(d2 : (Gam : Ind) -> B Gam -> Phi2 (B (f2 Gam), d1 (f2 Gam))) ->
+	... 
+	(dn : (Gam : Ind) -> B Gam -> Phin (B (fn Gam), d1 (fn Gam) .. d{n-1} (fn Gam))) ->
+	(Gam : Ind) -> B Gam -> Ty Del Gam
+	
+ci Del Gam (corec Del B d1 .. dn Gam p) --> Phii (corec Del B d1 .. dn (fi Gam)) (di Gam p) 
+
+
+----------------------
+zeros : Stream Nat
+hd zeros = 0
+tl zeros = zeros
+
+1zeros : Stream Nat
+hd 1zeros = 1
+tl 1zeros = zeros
+
+proof : tl 1zeros ≡ zeros
+proof = refl
+
+zeros is translated as it follows
+zeros' = corecS ⊤ (λ _ -> 0) (λ x -> x) I
+
+suppose that there are B f g b st we can translate 1zeros as
+1zeros = corecS B f g b
+
+then 
+corecS B f g (g b) = corecS ⊤ (λ _ -> 0) (λ x -> x) I
+->
+B = ⊤
+f = (λ _ -> 0)
+
+then
+hd (corecS ⊤ (λ _ -> 0) g b) --> (λ _ -> 0) b --> 0 contradiction
+
+
+
+
