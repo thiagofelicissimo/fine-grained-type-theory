@@ -1,0 +1,451 @@
+\documentclass[]{template}
+\title{Fine Grained Type Theory: A fine-grained take on (im)predicativity and (non)propositionality}
+
+\begin{document} 
+\maketitle
+
+Today we can separate most type systems in two main categories.
+\begin{itemize}
+\item \textbf{Impredicative and propositional:} Separates regular types from propositional types, which are treated impredicatively.
+\item \textbf{Predicative and non-propositional:} Mixes regular and propositional types, which are all treated predicatively. 
+\end{itemize}
+
+Those two views are \textit{a priori} incompatible. Indeed, a proof that is expressed in an impredicative system might break in a predicative one. Likewise, an object in a non-propositional system that mixes regular and propositional types tightly might also not be expressible in a system that separates them. Therefore, it would seem that any attempt to linking those worlds would be deemed to fail.
+
+Nevertheless, in many cases a proof or mathematical development can be adapted in order to not use such features. Indeed, many  non-propositional developments, which use the sum type both to represent the sum of types and the propositional disjunction, can be rewritten in a more fine-grained way, in which we make explicit if we are dealing with a sum or a disjunction.
+
+%For instance, suppose we have two types $ A, B : Set $ and predicates $ \in_A, \in_B : A + B \to Set $ stating that an element of the sum is in $ A $ or $ B $. Then the proposition \[
+%\Pi x : A + B. (\in_A~x) + (\in_B~x)
+%\] could be stated as \[
+%\Pi x : A + B. (\in_A~x) \lor (\in_B~x)
+%  \,.\]
+
+Likewise, some occurrences of impredicativity are also not needed. For instance, when declaring the induction principle of the natural numbers, we usually state\[
+(\Pi P : Nat \to Prop. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n) : Prop
+\,,\]and thus the induction principle is itself a proposition, making use of impredicativity. However, we can also avoid impredicativity and declare \[
+(\Pi P : Nat \to Prop. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n) : \forall Prop
+\,,\] where $ \forall Prop $ is a ``higher'' sort then $ Prop $. Even thought we do not have the full power of the impredicativity, we are still able to prove many interesting properties of the natural numbers, such as Euclidian division, and we conjecture that most interesting properties fall into this category.
+
+
+The goal of this document is presenting a system in which (im)predicativity and (non-)propositionality can be decomposed, giving rise to a theory whose proofs are valid in both predicative and impredicative, propositional and non-propositional systems. 
+
+\section{Introduction}
+\label{sec:label}
+
+
+
+\begin{definition}[Impredicativity]
+Let $ <_\mathcal{A} $ be the transitive closure of $ \mathcal{A} $. We say that a PTS is impredicative if there is $ (s_1,s_2,s_3) \in \mathcal{R} $ with $ s_3 < s_1 $ or $ s_3 < s_2 $.
+\end{definition}
+
+\begin{definition}[Propositionality]
+A PTS is propositional if it is endowed with a special subset of sorts $ \mathcal{L} \subseteq \mathcal{S} $, which should be interpreted as the sorts of propositions. Similarly, a propositional sort morphism is one which maps propositional sorts to propositional ones, and non-propositional sorts to non-propositional ones.
+\end{definition}
+
+We first start by defining two PTSs to represent the two categories of type systems defined on the introduction.
+
+\begin{definition}[Impredicative Propositional PTS]
+  We define the impredicative propositional PTS $ \mathcal{I}$ by
+  \begin{itemize}
+  \item $ \mathcal{S}_\mathcal{I} = \{Prop, Type_0, Type_1\} $
+  \item $ \mathcal{L}_\mathcal{I} = \{Prop\} $
+  \item $ \mathcal{A}_\mathcal{I} = \{(Prop, Type_0), (Type_0,Type_1)\} $
+  \item $ \mathcal{R}_\mathcal{I} = \{(Prop, Type_i, Type_i), (Type_i, Prop, Prop) \mid i =0,1\} \cup \{(Type_i, Type_j, Type_{max(i,j)}) \mid i,j = 0, 1\}$   
+  \end{itemize}
+\end{definition}
+
+\begin{definition}[Predicative Non-Propositional PTS]
+  We define the predicative non-propositional PTS $ \mathcal{P}$ by
+  \begin{itemize}
+  \item $ \mathcal{S}_\mathcal{P} = \{Set_0, Set_1\} $
+  \item $ \mathcal{A}_\mathcal{P} = \{(Set_0, Set_1)\} $
+  \item $ \mathcal{R}_\mathcal{P} = \{(Set_i, Set_j, Set_{max(i,j)}) \mid i,j = 0, 1\}$    
+  \end{itemize}
+\end{definition}
+
+We represent such PTSs through the following diagrams. 
+
+\begin{center}
+\begin{tabular}{c c c}
+  \begin{tikzcd}
+    Set_1 \arrow[loop,  distance=1em, in=55, out=135]  \\
+    Set_0 \arrow[u, Rightarrow] \arrow[u,  bend right=49] \arrow[u, maps to, no head,  bend left=40]\arrow[u, maps to,  bend left=54] \arrow[loop,  distance=1em, in=305, out=235]
+  \end{tikzcd} & \quad \quad \quad \quad \quad \quad &
+   \begin{tikzcd}
+    Type_1 \arrow[loop,  distance=1em, in=55, out=135]\arrow[dd,  bend right=70]  \\
+    Type_0 \arrow[u, Rightarrow] \arrow[u, maps to, no head,  bend left=40]\arrow[u, maps to,  bend left=54] \arrow[u,  bend right=49]\arrow[d,  bend right=49] \arrow[loop,  distance=1em, in=305, out=235]\\
+    Prop \arrow[u, Rightarrow] \arrow[loop,  distance=1em, in=305, out=235]\arrow[u,  bend right=49] \arrow[uu,  bend right=60]
+  \end{tikzcd}\\
+  \\
+PTS $ \mathcal{P} $ & &PTS $\mathcal{I}$
+\end{tabular}
+\end{center}
+
+
+As expected, the PTS $ \mathcal{I} $ has a dedicated sort of propositions, which are treated impredicatively, whereas normal types are treated predicatively. On the other hand, the PTS $ \mathcal{P} $ is non-propositional, as there is no dedicated sort for propositions, and all types are treated predicatively.
+
+We should interpret these PTSs as approximations of the type systems used by proof assistants. Most of them, such as Coq, HOL, Lean and Matita, use an extension of $ \mathcal{I} $, which nevertheless preserves the impredicative and propositional main aspect. On the other hand, the proof assistant Agda extends the PTS $ \mathcal{P} $ with an infinite number of universes.
+
+In the following, we explain step by step how these systems can be decomposed through a more fine-grained one. We will define a PTS satisfying the property that each proof or mathematical construction can be propositionaly embedded into both $ \mathcal{I} $ and $ \mathcal{P} $. More precisely, there should be two sort morphisms from our system to both $ \mathcal{I} $, $ \mathcal{P} $ --- which should be propositional in the case of $ \mathcal{I} $ --- which we will also craft step by step. In the following, we can these morphisms $ \pi_\mathcal{I} $ and $ \pi_\mathcal{P} $ respectively.
+
+%First, it is clear that in order to map constructions propositionally into $ \mathcal{I} $, our system needs to also have a dedicated sort of propositions. 
+
+The first problem we tackle is non-propositionality itself. Indeed, in systems like Agda, MLTT and the PTS $ \mathcal{P} $, we have $ \mathbb{N} : Set_0 $ and $ \bot : Set_0 $, meaning that the sort of regular types and propositional types are identified. However, in order to be able to translate our constructions into propositional systems as well, it is clear that we need to separate these types. Therefore, we start with a system with two sorts $ Set $ and $ Prop $.
+\begin{center}
+\begin{tikzcd}
+  Set\arrow[loop,  distance=1em, in=200, out=230]\arrow[r,  bend right=49] &\arrow[l,  bend right=49] Prop\arrow[loop,  distance=1em, in=340, out=310] \\
+\end{tikzcd}
+\end{center}
+Any construction made in this system can be translated into $ \mathcal{I} $ and $ \mathcal{P} $. Indeed, with $ \mathcal{I} $ we do $ \pi_\mathcal{I}(Set)=Type_0 $ and $ \pi_\mathcal{I}(Prop)=Prop $, while with $ \mathcal{P} $ we identity both sorts by setting $ \pi_\mathcal{P}(Set) = \pi_\mathcal{P}(Prop)=Set_0 $. We can then verify easily that $ \pi_\mathcal{P} $ and $ \pi_\mathcal{I} $ are sort morphisms. We represent the fact that the $ Set $ and $ Prop $ are identified in $ \mathcal{P} $ by the blue equal sign, on the following diagram.
+
+\begin{center}
+\begin{tikzcd}
+  Set\arrow[loop,  distance=1em, in=200, out=230]\arrow[r,  bend right=49] \arrow[r, equal, blue] &\arrow[l,  bend right=49] Prop\arrow[loop,  distance=1em, in=340, out=310] \\
+\end{tikzcd}
+\end{center}
+
+
+However, this system is still to weak. Indeed, remember that in order to declare a type in a given sort $ s $, this sort needs to be well-sorted, meaning that there is some $ s' $ with $ (s,s')\in \mathcal{A} $. Therefore, in order to be able to declare types in both $ Set $ and $ Prop $, we add two sorts $ TProp $ and $ TSet $, which play the role of top sorts on $ Set $ and $ Prop $.
+
+\begin{center}
+  \begin{tikzcd}
+  TSet & TProp \\    
+  Set\arrow[u, Rightarrow]\arrow[loop,  distance=1em, in=170, out=190]\arrow[r,  bend right=20] &\arrow[l,  bend right=20] Prop\arrow[loop,  distance=1em, in=365, out=345] \arrow[u, Rightarrow] \\
+\end{tikzcd}
+\end{center}
+
+
+We can then recover $ \mathcal{P} $ by identifying the sorts horizontally, whereas $ \mathcal{I} $ is obtained by identifying sorts of the main diagonal, as shown in the diagram. More precisely, we set $ \pi_\mathcal{P}(TSet) = \pi_\mathcal{P}(TProp)=Set_1 $, whereas $ \pi_\mathcal{I}(TProp) =  Type_0$ and $\pi_\mathcal{I}(TSet)=Type_1 $. We represent this through the following diagram, in which the red equal sign represent that the sorts are identified by $ \pi_\mathcal{I} $.
+
+\begin{center}
+  \begin{tikzcd}
+  TSet \arrow[r, equal, blue] & TProp \\    
+  Set\arrow[u, Rightarrow]\arrow[r, equal, blue] \arrow[ur, equal, red]\arrow[loop,  distance=1em, in=170, out=190]\arrow[r,  bend right=20] &\arrow[l,  bend right=20] Prop\arrow[loop,  distance=1em, in=365, out=345] \arrow[u, Rightarrow] 
+\end{tikzcd}
+\end{center}
+
+In the current system we can now for instance declare $ Nat : Set $, $ 0 : Nat $ and $ S : Nat \to Nat $, but also $ \bot : Prop $. However, our system is still weak, as we do not have the products in order to declare for instance $ \lor  : Prop \to Prop \to Prop  $, $ = : \Pi A : Set. A \to A \to Prop $, or even $ List : Set \to Set $. Fortunately, we can add new products to this system, while still preserving the fact that $ \pi_\mathcal{I} $ and $ \pi_\mathcal{I} $ are sort morphisms. By adding as many products we can, while satisfying this property, we get the following PTS.
+
+\begin{center}
+  \begin{tikzcd}[row sep=2cm, column sep=2cm]
+    TSet
+    \arrow[loop,  distance=1em, in=170, out=190]
+    \arrow[r, equal, blue]
+    &
+    TProp
+    \arrow[l,  bend left=15]
+    \arrow[l,  no head, maps to, bend right=20]
+    \arrow[l, maps to,  bend right=32]    
+    \arrow[loop,  distance=1em, in=365, out=345]
+    \\    
+    Set
+    \arrow[u,  no head, maps to, bend left=25]
+    \arrow[u,  maps to, bend left=45]    
+    \arrow[ur,  no head, maps to, bend right=11]
+    \arrow[ur,  maps to, bend right=27]    
+    \arrow[u, Rightarrow]
+    \arrow[u,  bend right=30]    
+    \arrow[r, equal, blue]
+    \arrow[ur, equal, red]
+    \arrow[loop,  distance=1em, in=170, out=190]
+    \arrow[r,  bend right=20]
+    \arrow[ur,  bend left=13]
+    &
+    Prop
+    \arrow[l,  bend left=40]    
+    \arrow[loop,  distance=1em, in=365, out=345]
+    \arrow[u,  bend right=40]
+    \arrow[u, Rightarrow]
+    \arrow[ul]
+\end{tikzcd}
+\end{center}
+We can now declare for instance $ \lor  : Prop \to Prop \to Prop  $ and $ = : \Pi A : Set. A \to A \to Prop $, which allow us to express the propositions \[
+\Pi n~m : Nat. n =_{Nat} m \to S~n =_{Nat} S~m
+  \,,\] and \[
+  \Pi n : Nat. n =_{Nat} 0 \lor (n =_{Nat} 0 \to \bot)
+  \,.\]
+
+However, suppose that we wanted to declare the induction principle of $ Nat $, which is essential to prove most interesting properties about the natural numbers. Unfortunately, as our system does not have a product of the type $ (TProp, Prop, ?) $ we are completely unable to write any term that quantifies over a proposition. Worst, in the current setting, no product of this kind can be added to the system.
+
+Indeed, if we added $ (TProp, Prop, Prop) $ or $ (TProp, Prop, Set) $, then for $ \pi_\mathcal{P} $ to be a sort morphism we would have to have $ (Set_1, Set_0, Set_0) $, which does not hold. Likewise, if we added $ (TProp, Prop, TProp) $ or $ (TProp, Prop, TSet) $, then for $ \pi_\mathcal{I} $ to be a sort morphism we would have to have $ (Type_0, Prop, Type_0) $ or $ (Type_0, Prop, Type_1) $, which also do not hold.
+
+Fortunately, this can be solved by adding a sort of higher-order propositions $ \forall Prop $  to the system, which then allows us to have $ (TProp, Prop, \forall Prop) $. Then, in order to have the right products in the images of $ \pi_\mathcal{I} $ and $ \pi_\mathcal{P}  $ we set $ \pi_\mathcal{I}(\forall Prop) = Prop $ and $ \pi_\mathcal{P}(\forall Prop) = Set_1 $. Actually, we can add all missing products in order for the PTS to be functional, which gives the following system --- in which the product $ (TSet, Prop, \forall Prop)  $ is omitted, for readability purposes.
+
+\begin{center}
+  \begin{tikzcd}[row sep=2cm, column sep=2cm]
+    TSet
+    \arrow[rr,  bend left=40]    
+    \arrow[loop,  distance=1em, in=170, out=190]
+    \arrow[r, equal, blue]
+    &
+    TProp
+    \arrow[r,  bend left=20]    
+    \arrow[r, equal, blue]    
+    \arrow[l,  bend left=15]
+    \arrow[l,  no head, maps to, bend right=20]
+    \arrow[l, maps to,  bend right=32]    
+    \arrow[loop,  distance=1em, in=105, out=65]
+    &
+    \forall Prop
+    \arrow[ll,  bend right=55]
+    \arrow[l,  bend right=30]        
+    \arrow[loop,  distance=1em, in=365, out=345]    
+
+
+    \\    
+    Set
+    \arrow[u,  no head, maps to, bend left=25]
+    \arrow[u,  maps to, bend left=45]    
+    \arrow[ur,  no head, maps to, bend right=11]
+    \arrow[ur,  maps to, bend right=27]    
+    
+    \arrow[u, Rightarrow]
+    \arrow[u,  bend right=30]
+    \arrow[r, equal, blue]
+    \arrow[ur, equal, red]
+    \arrow[loop,  distance=1em, in=170, out=190]
+    \arrow[r,  bend right=20]
+    \arrow[ur,  bend left=13]
+    \arrow[urr,  bend right=100]    
+    &
+    Prop
+    \arrow[u,  no head, maps to, bend right=40]
+    \arrow[ur,  maps to, bend left=13]
+    \arrow[ur,  no head, maps to, bend right=60]
+    \arrow[ur,  maps to, bend right=45]
+    \arrow[ur, equal, red]
+    \arrow[ur,  bend right=20]    
+    \arrow[l,  bend left=40]        
+%    \arrow[loop,  distance=1em, in=285, out=245]
+    \arrow[u,  bend right=20]
+    \arrow[u, Rightarrow]
+    \arrow[ul] &
+\end{tikzcd}
+\end{center}
+
+Now we can declare the induction principle of the natural numbers as \[
+\Pi P : Nat \to Prop. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n
+  \,,\]which has type $ \forall Prop $. Moreover, note that when translating this term using $ \pi_\mathcal{P} $ and $ \pi_\mathcal{I} $ we get exactly what we want in both systems : in $ \mathcal{I} $ \[
+\Pi P : Nat \to Prop. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n
+\] is of type $ Prop $, making use of impredicativity, while in $ \mathcal{P} $ \[
+\Pi P : Nat \to Set_0. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n
+\] is of type $ Set_1 $, which lives in a higher sort as required by predicativity.
+
+
+
+\section{Preliminary}
+\label{sec:pts}
+
+\subsection{PTS}
+\label{subsec:n}
+\textbf{Terms}
+\[
+  A, B, M, N ::=
+  x \in \mathcal{X} \mid
+  c \in \mathcal{C} \mid
+  s \in \mathcal{S} \mid
+  M N \mid
+  \lambda x : A. M \mid
+  \Pi x : A. B 
+\]
+
+\textbf{Conversion}
+Context closure of the following
+\[
+(\lambda x : A. M) N \red_\beta M (N/x)
+\]
+
+\textbf{Typing rules}
+  \begin{center}
+    \textbf{Context forming rules}
+  \end{center}
+\begin{center}
+  \AxiomC{}
+\RightLabel{Empty}
+\UnaryInfC{$-;-~\text{well-formed}$}
+\DisplayProof
+\hskip 1.5em
+\AxiomC{$\Sigma;- \vdash A : s$}
+\AxiomC{$c \notin \Sigma$}
+\RightLabel{Decl-sig}
+\BinaryInfC{$\Sigma, c : A;- ~\text{well-formed} $}
+\DisplayProof
+\hskip 1.5em
+\AxiomC{$\Sigma;\Gamma\vdash A : s$}
+\AxiomC{$x \notin \Gamma$}
+\RightLabel{Decl-ctx}
+\BinaryInfC{$\Sigma; \Gamma, x : A ~\text{well-formed} $}
+\DisplayProof
+\end{center}
+\begin{center}
+    \textbf{Conversion rule}
+  \end{center}    
+\begin{center}
+  \AxiomC{$\Sigma;\Gamma \vdash M : A $}
+  \AxiomC{$\Sigma; \Gamma \vdash B : s $}  
+  \AxiomC{$A \equiv B$}
+  \RightLabel{Conv}
+\TrinaryInfC{$\Sigma; \Gamma \vdash M : B $}
+\DisplayProof
+\end{center}
+\begin{center}
+  \textbf{Regular type/term forming rules}
+\end{center}
+
+\begin{center}
+  \AxiomC{$\Sigma; \Gamma $ well-formed}
+  \AxiomC{$(s_1, s_2) \in \mathcal{A} $}
+  \RightLabel{Sort}
+\BinaryInfC{$\Sigma; \Gamma  \vdash s_1 : s_2$}
+\DisplayProof
+\end{center}
+
+\begin{center} 
+  \AxiomC{$\Sigma; \Gamma \vdash A : s_1 $}
+  \AxiomC{$\Sigma; \Gamma,  x : A \vdash B : s_2 $}
+  \AxiomC{$(s_1, s_2, s_3) \in \mathcal{R} $}  
+\RightLabel{Prod}
+\TrinaryInfC{$\Sigma; \Gamma \vdash \Pi x : A . B : s_3 $}
+\DisplayProof
+\end{center}
+\begin{center}
+\AxiomC{$\Sigma; \Gamma~\text{well-formed}$}
+\AxiomC{$ x : A  \in \Gamma $}
+\RightLabel{Var}
+\BinaryInfC{$\Sigma; \Gamma \vdash x : A  $}
+\DisplayProof
+\end{center}
+\begin{center}
+\AxiomC{$\Sigma; \Gamma~\text{well-formed}$}
+\AxiomC{$ c : A  \in \Sigma $}
+\RightLabel{Const}
+\BinaryInfC{$\Sigma; \Gamma \vdash c : A  $}
+\DisplayProof
+\end{center}
+\begin{center}
+  \AxiomC{$\Sigma; \Gamma \vdash A : s_1 $}
+  \AxiomC{$\Sigma; \Gamma, x : A \vdash B :s_2 $}  
+  \AxiomC{$\Sigma; \Gamma, x : A \vdash M : B $}
+  \AxiomC{$(s_1, s_2, s_3) \in \mathcal{R} $}  
+  \RightLabel{Abs}
+\QuaternaryInfC{$\Sigma; \Gamma \vdash \lambda x : A. M : \Pi x : A. B $}
+\DisplayProof
+\end{center}
+\begin{center}
+  \AxiomC{$\Sigma;\Gamma \vdash M : \Pi x : A. B $}
+  \AxiomC{$\Sigma;\Gamma \vdash N : A $}
+  \RightLabel{App}
+\BinaryInfC{$\Sigma; \Gamma \vdash M N : B(N/x) $}
+\DisplayProof
+\end{center}
+
+\subsection{Sort morphisms}
+\label{subsec:label}
+
+
+\begin{definition}[Sort morphism]
+  A sort morphism between two PTSs is a function between their underlying set of sorts compatible with the relations $ \mathcal{A} $ and $ \mathcal{R} $. More explicitly, a sort morphism between $ P_1=(\mathcal{S}_1,\mathcal{A}_1,\mathcal{R}_1)$ and $ P_2=(\mathcal{S}_2,\mathcal{A}_2,\mathcal{R}_2)$ is a function $ f : \mathcal{S}_1 \to \mathcal{S}_2 $ such that
+  \begin{align*}
+    &(s_1, s_2) \in \mathcal{A}_1 \Rightarrow (f (s_1), f(s_2)) \in \mathcal{A}_2\\
+    &(s_1, s_2, s_3) \in \mathcal{R}_1 \Rightarrow (f (s_1), f(s_2), f(s_3)) \in \mathcal{R}_2    \,.
+  \end{align*}
+\end{definition}
+
+PTSs and sort morphisms actually assemble into a category, which we call \textbf{PTS}. Explicitly,
+
+\begin{itemize}
+\item $ Obj(\text{\textbf{PTS}}) = \{ (S, A, R) \mid S \text{ a set}, A \subseteq S \times S, R \subseteq S \times S \times S\} $
+\item $ \textbf{PTS}(P, Q) = $ sort morphisms from P to Q
+\end{itemize}
+
+\begin{thm}[]
+  The category \textbf{PTS} has products. Moreover, given the PTSs $ P=(\mathcal{S}_P,\mathcal{A}_P,\mathcal{R}_P)$ and $ Q=(\mathcal{S}_Q,\mathcal{A}_Q,\mathcal{R}_Q)$, the product $ P \times Q $ is explicitly described by
+  \begin{itemize}
+  \item $ \mathcal{S}_{P \times Q} = \mathcal{S}_P \times \mathcal{S}_Q $
+  \item $ \mathcal{A}_{P \times Q} = \{ ((s_1, s_1'), (s_2, s_2')) \mid (s_1, s_2) \in \mathcal{A}_P, (s'_1, s'_2) \in \mathcal{A}'_Q \}$
+  \item $ \mathcal{R}_{P \times Q} = \{((s_1, s_1'), (s_2, s_2'), (s_3, s_3')) \mid (s_1, s_2, s_3) \in \mathcal{R}_P, (s'_1, s'_2, s'_3) \in \mathcal{R}_Q \}$
+  \end{itemize}
+  Moreover, given $ X \in Obj(\textbf{PTS}) $, $ f_P \in \textbf{PTS}(X, P) $ and $ f_Q \in \textbf{PTS}(X, Q) $, then the unique arrow $ f_P \times f_Q : X \to P \times Q $ making the diagram commute is described explicitly by \[
+f_P \times f_Q = s \mapsto (f_P (s), f_Q (s))
+    \,.\] 
+\end{thm}
+\begin{proof}
+  The projections given by $ \pi_P : (s, s') \mapsto s $ and $ \pi_Q : (s, s') \mapsto s' $ are clearly sort morphisms. The function $ s \mapsto (f_P (s), f_Q (s)) $ defines a sort morphism, as
+  \begin{align*}
+    (s_1, s_2) \in \mathcal{A}_X &\Rightarrow (f_P(s_1), f_P(s_2)) \in \mathcal{A}_P \land (f_Q(s_1), f_Q(s_2)) \in \mathcal{A}_Q \\ &\Rightarrow ((f_P(s_1), f_Q(s_1)), (f_P(s_2), f_Q(s_2))) \in \mathcal{A}_{P \times Q}\end{align*}
+  and
+  \begin{align*}
+    (s_1, s_2, s_3) \in \mathcal{R}_X &\Rightarrow (f_P(s_1), f_P(s_2), f_P(s_3)) \in \mathcal{R}_P \land (f_Q(s_1), f_Q(s_2), f_Q(s_3)) \in \mathcal{R}_Q \\ &\Rightarrow ((f_P(s_1), f_Q(s_1)), (f_P(s_2), f_Q(s_2)), (f_P(s_3), f_Q(s_3)))  \in \mathcal{R}_{P \times Q}
+  \end{align*}
+  Finally, we clearly see that $ f_P \times f_Q $ is the unique morphism satisfying $ \pi_P \circ (f_P \times f_Q) = f_P $ and $ \pi_Q \circ (f_P \times f_Q) = f_Q $.
+\end{proof}
+
+
+\begin{cor}[]
+The product of two functional PTSs is a functional PTS.
+\end{cor}
+\begin{proof}
+Follows directly from the characterization of the product.
+\end{proof}
+
+
+\begin{definition}[]
+  Given a PTS $ P $ and a morphism $ f $ with domain $ P $, we define the fiber contraction of $ f$ as the PTS obtained by identifying all the sorts in the same fiber. More formally, we have
+  \begin{itemize}
+  \item $ \mathcal{S} = $ the fibers of $ f $
+  \item $ \mathcal{A} =  \{ ([s_1], [s_2]) \mid \exists s_1' \in [s_1], s_2' \in [s_2] $ st $ (s_1', s_2') \in \mathcal{A}_P \}$
+  \item $ \mathcal{R} =  \{ ([s_1], [s_2], [s_3]) \mid \exists s_1' \in [s_1], s_2' \in [s_2], s_3' \in [s_3] $ st $ (s_1', s_2', s_3') \in \mathcal{R}_P \}$    
+  \end{itemize}
+\end{definition}
+
+Note that the contraction is not really a quotient, as we do not ask for the relations $ \mathcal{A}, \mathcal{R} $ be compatible with this relation. We write $ fc(f) $ for the fiber contraction of $ f $. 
+
+\begin{lem}[]
+Let $ P, Q $ be PTSs and $ \pi_P, \pi_Q $ be the projections of $ P \times Q $. We have $ fc(\pi_P) = P $ iff \[
+  (\mathcal{A}_P \neq \emptyset \Rightarrow \mathcal{A}_Q \neq \emptyset) \land   (\mathcal{R}_P \neq \emptyset \Rightarrow \mathcal{R}_Q \neq \emptyset) 
+  \,.\]
+\end{lem}
+\begin{proof}
+  $\Leftarrow$ : We have of course $ \mathcal{S}_{fc(\pi_P)} = \mathcal{S}_P $. Now suppose $ (s_1, s_2) \in \mathcal{A}_P $. As $ \mathcal{A}_P $ is nonempty then $ \mathcal{A}_Q$ is also, and thus take any $(s_1', s_2') \in \mathcal{A}_Q $. We have $ ((s_1,s_1'),(s_2,s_2')) \in \mathcal{A}_{P \times Q} $ and thus $ (s_1, s_2) \in \mathcal{A}_{fc(\pi_P)} $. However, we also obviously have $ \mathcal{A}_{fc(\pi_P)} \subseteq \mathcal{A}_P $, and thus $ \mathcal{A}_{fc(\pi_P)} = \mathcal{A}_P $. The same argument holds for $ \mathcal{R} $.
+
+  $ \Rightarrow $ : If $ \mathcal{A}_P \neq \emptyset $, then $ \mathcal{A}_{fc(\pi_P)} \neq \emptyset $. But if we had $\mathcal{A}_Q = \emptyset$, then $ \mathcal{A}_{P \times Q} $ would be empty, and so as $ \mathcal{A}_{fc(\pi_P)}$. The same argument holds for $ \mathcal{R} $.
+\end{proof}
+
+
+@Gilles: The notion of compatibility of PTSs you proposed us to define turns of to be very weak. According to the previous lemma, two PTSs $ P, Q $ are compatible iff \[
+  (\mathcal{A}_P \neq \emptyset \iff \mathcal{A}_Q \neq \emptyset) \land   (\mathcal{R}_P \neq \emptyset \iff \mathcal{R}_Q \neq \emptyset) 
+  \,.\]
+
+Given a sort morphism $ \textbf{PTS}(P, Q) $ we extend it to terms and contexts in the most natural way.
+
+\begin{thm}[]
+Given two PTSs $ P, Q $, a morphism $ f \in \textbf{PTS}(P, Q) $ and a judgment $ \Sigma; \Gamma \vdash_P M : A $, then we have $ \llbracket \Sigma \rrbracket_f; \llbracket \Gamma \rrbracket_f \vdash_Q \llbracket M \rrbracket_f : \llbracket A \rrbracket_f $ in $ Q. $
+\end{thm}
+\begin{proof}
+The intuition is the following: as the sort morphism is compatible with $ \mathcal{A} $ and $ \mathcal{R} $ then any occurrence of the rules Sort and Prod will still be valid. The proof is done by induction on the judgment tree.
+\end{proof}
+
+\section{A fine-grained take on $ \mathcal{U}$}
+\label{sec:fgu}
+
+x proposes a universal theory $ \mathcal{U} $ for expressing logics in which many systems can be expressed as fragments, such as predicate logic, CoC, HOL, etc. However, this theory does allow for the expression of predicative logic theories in an adequate way. Therefore, in this section we explore how the ideas seen until now can be used to extend the theory $ \mathcal{U}$, in order to accommodate predicative logic systems.
+
+As in $ \mathcal{U} $, we start declaring 
+
+
+
+
+
+\begin{appendices}
+  \section{References}
+\bibliographystyle{abbrv}  
+\bibliography{ref}
+
+\section{End-notes}
+\label{sec:foot}
+\textbf{You can click on the number to get back to where the end-note was made.}
+\printendnotes[custom]
+
+\end{appendices}
+\end{document}
+

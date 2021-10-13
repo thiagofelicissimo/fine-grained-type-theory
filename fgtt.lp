@@ -38,7 +38,7 @@ with TSet  ∨ Set   ↪ TSet
 with TProp ∨ Prop  ↪ HProp
 with Set   ∨ TProp ↪ TProp
 with Prop  ∨ TSet  ↪ TSet
-with TProp ∨ Set   ↪ HProp
+with TProp ∨ Set   ↪ TProp
 with TSet  ∨ Prop  ↪ HProp
 
 // hsort ∨ sort, sort ∨ hsort
