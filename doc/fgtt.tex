@@ -24,7 +24,7 @@ Likewise, some occurrences of impredicativity are also not needed. For instance,
 (\Pi P : Nat \to Prop. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n) : Prop
 \,,\]and thus the induction principle is itself a proposition, making use of impredicativity. However, we can also avoid impredicativity and declare \[
 (\Pi P : Nat \to Prop. P~0 \to (\Pi n : Nat. P~n \to P~(S~n)) \to \Pi n : Nat. P~n) : \forall Prop
-\,,\] where $ \forall Prop $ is a ``higher'' sort then $ Prop $. Even thought we do not have the full power of the impredicativity, we are still able to prove many interesting properties of the natural numbers, such as Euclidian division, and we conjecture that most interesting properties fall into this category.
+\,,\] where $ \forall Prop $ is a ``higher'' sort then $ Prop $. Even though we do not have the full power of the impredicativity, we are still able to prove many interesting properties of the natural numbers, such as Euclidian division, and we conjecture that most interesting properties fall into this category.
 
 
 The goal of this document is presenting a system in which (im)predicativity and (non-)propositionality can be decomposed, giving rise to a theory whose proofs are valid in both predicative and impredicative, propositional and non-propositional systems. 
@@ -50,7 +50,7 @@ We first start by defining two PTSs to represent the two categories of type syst
   \item $ \mathcal{S}_\mathcal{I} = \{Prop, Type_0, Type_1\} $
   \item $ \mathcal{L}_\mathcal{I} = \{Prop\} $
   \item $ \mathcal{A}_\mathcal{I} = \{(Prop, Type_0), (Type_0,Type_1)\} $
-  \item $ \mathcal{R}_\mathcal{I} = \{(Prop, Type_i, Type_i), (Type_i, Prop, Prop) \mid i =0,1\} \cup \{(Type_i, Type_j, Type_{max(i,j)}) \mid i,j = 0, 1\}$   
+  \item $ \mathcal{R}_\mathcal{I} = \{(Prop, Type_i, Type_i), (Type_i, Prop, Prop) \mid i =0,1\} \cup \{(Type_i, Type_j, Type_{max(i,j)}) \mid i,j = 0, 1\} \cup \{(Prop,Prop,Prop)\}$   
   \end{itemize}
 \end{definition}
 
@@ -82,11 +82,11 @@ PTS $ \mathcal{P} $ & &PTS $\mathcal{I}$
 \end{center}
 
 
-As expected, the PTS $ \mathcal{I} $ has a dedicated sort of propositions, which are treated impredicatively, whereas normal types are treated predicatively. On the other hand, the PTS $ \mathcal{P} $ is non-propositional, as there is no dedicated sort for propositions, and all types are treated predicatively.
+As expected, the PTS $ \mathcal{I} $ has a sort of propositions, which is impredicative, whereas normal types live in predicative sorts. On the other hand, the PTS $ \mathcal{P} $ is non-propositional, as there is no dedicated sort for propositions, and all types are treated predicatively.
 
 We should interpret these PTSs as approximations of the type systems used by proof assistants. Most of them, such as Coq, HOL, Lean and Matita, use an extension of $ \mathcal{I} $, which nevertheless preserves the impredicative and propositional main aspect. On the other hand, the proof assistant Agda extends the PTS $ \mathcal{P} $ with an infinite number of universes.
 
-In the following, we explain step by step how these systems can be decomposed through a more fine-grained one. We will define a PTS satisfying the property that each proof or mathematical construction can be propositionaly embedded into both $ \mathcal{I} $ and $ \mathcal{P} $. More precisely, there should be two sort morphisms from our system to both $ \mathcal{I} $, $ \mathcal{P} $ --- which should be propositional in the case of $ \mathcal{I} $ --- which we will also craft step by step. In the following, we can these morphisms $ \pi_\mathcal{I} $ and $ \pi_\mathcal{P} $ respectively.
+In the following, we explain step by step how these systems can be decomposed through a more fine-grained one. We will define a PTS satisfying the property that each proof or mathematical construction can be propositionaly embedded into both $ \mathcal{I} $ and $ \mathcal{P} $. More precisely, there should be two sort morphisms from our system to both $ \mathcal{I} $, $ \mathcal{P} $ --- which should be propositional in the case of $ \mathcal{I} $ --- which we will also craft step by step. In the following, we call these morphisms $ \pi_\mathcal{I} $ and $ \pi_\mathcal{P} $ respectively.
 
 %First, it is clear that in order to map constructions propositionally into $ \mathcal{I} $, our system needs to also have a dedicated sort of propositions. 
 
@@ -162,7 +162,7 @@ In the current system we can now for instance declare $ Nat : Set $, $ 0 : Nat $
 We can now declare for instance $ \lor  : Prop \to Prop \to Prop  $ and $ = : \Pi A : Set. A \to A \to Prop $, which allow us to express the propositions \[
 \Pi n~m : Nat. n =_{Nat} m \to S~n =_{Nat} S~m
   \,,\] and \[
-  \Pi n : Nat. n =_{Nat} 0 \lor (n =_{Nat} 0 \to \bot)
+  \Pi n : Nat. n =_{Nat} 0 \lor (n =_{Nat} 0 \to \bot) 
   \,.\]
 
 However, suppose that we wanted to declare the induction principle of $ Nat $, which is essential to prove most interesting properties about the natural numbers. Unfortunately, as our system does not have a product of the type $ (TProp, Prop, ?) $ we are completely unable to write any term that quantifies over a proposition. Worst, in the current setting, no product of this kind can be added to the system.
@@ -412,7 +412,7 @@ Let $ P, Q $ be PTSs and $ \pi_P, \pi_Q $ be the projections of $ P \times Q $. 
 \end{proof}
 
 
-@Gilles: The notion of compatibility of PTSs you proposed us to define turns of to be very weak. According to the previous lemma, two PTSs $ P, Q $ are compatible iff \[
+@Gilles: The notion of compatibility of PTSs you proposed us to define turns out to be very weak. According to the previous lemma, two PTSs $ P, Q $ are compatible iff \[
   (\mathcal{A}_P \neq \emptyset \iff \mathcal{A}_Q \neq \emptyset) \land   (\mathcal{R}_P \neq \emptyset \iff \mathcal{R}_Q \neq \emptyset) 
   \,.\]
 
